@@ -1,0 +1,7 @@
+{
+  "text": "${input}",
+  "labels": {"business": "${domain}", "action": "${intent}", "tracking": "${slots.tracking_no}"},
+  "language": "${language}",
+  "custom_labels": {"意图名称": "${associated.category}", "自定义标签编码": "${associated.label_code}"},
+  "source": {"scene": "${scene}", "group": "${seed_group}", "split": "${seed_split}"}
+}

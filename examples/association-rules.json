@@ -1,0 +1,10 @@
+{
+  "rules": [
+    {
+      "scene": "ecom:logistics:QUERY",
+      "input": {"zh": ["快递号", "运单号", "快递单号", "物流单号"], "en": ["tracking number", "shipment number", "parcel number"]},
+      "output": {"zh": {"domain": "物流", "intent": "查询物流", "category": "查询物流", "label_code": "LOGISTICS_QUERY"}, "en": {"domain": "logistics", "intent": "track shipment", "category": "track shipment", "label_code": "LOGISTICS_QUERY"}},
+      "match": "any"
+    }
+  ]
+}

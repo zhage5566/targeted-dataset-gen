@@ -1,0 +1,17 @@
+{
+  "pools": {
+    "zh": {
+      "bank": {"values": ["示例青禾银行", "示例星河银行", "示例云帆银行"], "mode": "replace"},
+      "company": {"templates": ["示例${name}${sector}有限公司"], "variables": {"name": ["青禾", "云帆", "星河"], "sector": ["科技", "商贸", "文化"]}}
+    },
+    "en": {
+      "bank": {"templates": ["Example ${name} Bank-${code}"], "variables": {"name": ["River", "Pine", "Cloud"], "code": {"hex": 8}}, "mode": "replace"}
+    }
+  },
+  "scenes": {
+    "finance:bank_card:REPORT_LOSS": {
+      "zh": {"card_no": {"templates": ["卡尾号${number}"], "variables": {"number": {"min": 0, "max": 9999, "width": 4}}, "mode": "replace"}},
+      "en": {"card_no": {"templates": ["card ending ${number}"], "variables": {"number": {"digits": 4}}, "mode": "replace"}}
+    }
+  }
+}

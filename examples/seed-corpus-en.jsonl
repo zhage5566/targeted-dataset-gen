@@ -1,0 +1,1 @@
+{"input": "Please report my lost card ending 1234.", "output": {"domain": "bank_card", "intent": "REPORT_LOSS", "slots": {"card_no": "card ending 1234"}}, "scene": "finance:bank_card:REPORT_LOSS", "group_id": "english-demo-1"}

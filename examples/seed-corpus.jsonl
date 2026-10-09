@@ -1,0 +1,2 @@
+{"question":"我把卡遗失了，需要挂失卡尾号1234，开户银行是示例银行A。","answer":{"domain":"bank_card","intent":"REPORT_LOSS","slots":{"card_no":"卡尾号1234","bank":"示例银行A"}},"meta":{"scene":"finance:bank_card:REPORT_LOSS"}}
+{"question":"请先帮我停用丢失的卡尾号5678，办理挂失。","answer":{"domain":"bank_card","intent":"REPORT_LOSS","slots":{"card_no":"卡尾号5678"}},"meta":{"scene":"finance:bank_card:REPORT_LOSS"}}

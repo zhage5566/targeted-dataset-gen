@@ -1,0 +1,9 @@
+{
+  "task": "${task}",
+  "industry": "${industry}",
+  "scene": "${scene}",
+  "question": "${input}",
+  "answer": "${answer_json}",
+  "conversation": "${messages}",
+  "metadata": {"generator": "targeted-dataset-gen", "version": "2.1.0"}
+}

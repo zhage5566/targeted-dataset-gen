@@ -1,0 +1,11 @@
+{
+  "fields": {
+    "messages": "messages",
+    "input": "question",
+    "output": "answer",
+    "task": "task",
+    "scene": "meta.scene",
+    "slots": "slots"
+  },
+  "max_records": 10000
+}

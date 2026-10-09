@@ -1,0 +1,28 @@
+{
+  "version": "2.1.0",
+  "tests": 46,
+  "python_versions": [
+    "3.10",
+    "3.12",
+    "3.13"
+  ],
+  "exe_self_test": "PASS bilingual Tk UI, five industries, seed import/augmentation, custom CSV, English corpus, localized values, expanded pools, custom input templates/associations/output keys",
+  "cli_checks": [
+    "Bilingual logistics templates and associations: custom JSONL, JSON array and CSV",
+    "Clean wheel installation and English corpus generation"
+  ],
+  "features": [
+    "supervised JSONL/JSON/CSV seed import",
+    "field mapping and scope checks",
+    "grounded slot value augmentation",
+    "cross-format history dedup",
+    "messages/alpaca/sharegpt/custom layouts",
+    "JSONL/JSON/CSV export",
+    "Chinese/English UI and native corpus",
+    "stable keys with localized label values",
+    "persistent train/test seed lineage isolation",
+    "expandable scoped entity pools",
+    "custom utterance positions and placeholder vocabulary",
+    "many-to-one lexical associations with arbitrary output keys/values"
+  ]
+}

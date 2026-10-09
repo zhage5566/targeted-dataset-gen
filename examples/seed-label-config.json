@@ -1,0 +1,5 @@
+{
+  "task": "intent",
+  "scene": "finance:bank_card:REPORT_LOSS",
+  "fields": {"input": "text", "output": "tag", "slots": "entities"}
+}

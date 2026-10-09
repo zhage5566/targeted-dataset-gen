@@ -1,0 +1,14 @@
+{
+  "scenes": {
+    "ecom:order:CANCEL": {
+      "zh": [
+        {"text": "${礼貌}取消订单${订单}，商品是${商品}。", "variables": {"礼貌": {"values": ["请帮我", "麻烦", "我想"]}, "订单": {"slot": "order_id"}, "商品": {"slot": "product", "values": ["咖啡机", "无线键盘", "台灯"]}}},
+        {"segments": ["取消订单", "订单号${订单}", "商品${商品}"], "shuffle": true, "joiner": "；", "variables": {"订单": {"slot": "order_id"}, "商品": {"slot": "product"}}}
+      ],
+      "en": [
+        {"text": "Please cancel order ${order}. The product is ${item}.", "variables": {"order": {"slot": "order_id"}, "item": {"slot": "product", "values": ["coffee maker", "wireless keyboard", "desk lamp"]}}},
+        {"segments": ["Please cancel my order", "Order ID: ${order}", "Product: ${item}"], "shuffle": true, "joiner": "; ", "variables": {"order": {"slot": "order_id"}, "item": {"slot": "product"}}}
+      ]
+    }
+  }
+}

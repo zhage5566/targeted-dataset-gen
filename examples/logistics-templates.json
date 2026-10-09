@@ -1,0 +1,14 @@
+{
+  "scenes": {
+    "ecom:logistics:QUERY": {
+      "zh": [
+        {"text": "请查一下快递号${快递}的物流进度。", "variables": {"快递": {"slot": "tracking_no", "templates": ["DEMO-${id}"], "variables": {"id": {"digits": 12}}}}},
+        {"segments": ["帮我查询物流", "运单号${快递}"], "shuffle": true, "joiner": "，", "variables": {"快递": {"slot": "tracking_no"}}}
+      ],
+      "en": [
+        {"text": "Track my shipment with tracking number ${tracking}.", "variables": {"tracking": {"slot": "tracking_no", "templates": ["DEMO-${id}"], "variables": {"id": {"digits": 12}}}}},
+        {"segments": ["Please track my shipment", "Tracking number: ${tracking}"], "shuffle": true, "joiner": "; ", "variables": {"tracking": {"slot": "tracking_no"}}}
+      ]
+    }
+  }
+}

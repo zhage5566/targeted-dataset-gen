@@ -1,6 +1,12 @@
 # Targeted Dataset Generator / 定向数据集生成器
 
-面向中文任务型对话的本地合成数据工具。通过界面选择**行业 → 业务功能 → 训练任务**，生成 UTF-8 JSONL 和质量报告。支持 Windows 桌面程序与 Python 命令行，不调用外部大模型或网络服务。
+面向中英文任务型对话的本地合成数据工具。通过界面选择**行业 → 业务功能 → 训练任务**，生成 UTF-8 数据集和质量报告。支持 Windows 桌面程序与 Python 命令行，不调用外部大模型或网络服务。
+
+**v2.1 新增：语料种子导入与扩增、训练／测试来源隔离、中英文界面及输入输出、可扩展词池、自定义输入模板与占位词位置、多对一输入输出关联、自定义输出字段和标签词汇。**支持 messages / Alpaca / ShareGPT / custom 结构及 JSONL / JSON / CSV。
+
+使用说明：[语料导入与格式](docs/import-export.md) · [语言与种子隔离](docs/languages-and-splits.md) · [词库、模板和多对一关联](docs/templates-pools-associations.md)。
+
+Local bilingual dataset generation with supervised seeds, stable train/test lineage, expandable entity pools, editable utterances, many-to-one lexical associations and custom output keys. No network or model API is required.
 
 Windows 可执行程序和完整便携包见 [Releases](https://github.com/zhage5566/targeted-dataset-gen/releases)。源码中的构建脚本可重新打包程序。
 
@@ -15,12 +21,16 @@ python app.py
 1. 在“行业与训练方向”勾选行业。
 2. 业务功能列表默认全选；点击“清空选择”，再用 Ctrl/Shift 选择需要的功能。
 3. 勾选训练任务，例如只勾“独立槽位提取”；任务权重决定实际输出字节占比。
-4. 在“输出与质量设置”指定 `.jsonl` 文件和目标大小，点击“开始生成”。
+4. 在“输出与质量设置”指定输出文件和目标大小（JSONL / JSON / CSV），点击“开始生成”。
 5. 通过“查看质量报告”检查任务比例、去重数量、场景覆盖和结构重复情况。
+
+界面顶部可独立选择界面语言、语料语言和标签值语言。默认 `follow` 跟随语料语言；`canonical` 保留原始枚举编码。标准结构的键名固定，自定义格式可以自由命名键。已有实体值不自动翻译，英文模式应导入英文种子。
+
+需要使用自己的样本时，打开“语料种子导入”，选择文件并配置输入/答案字段；在“自定义数据格式”选择导出结构，或编辑/加载 JSON 模板。原有整数随机种子仍用于复现，不同于语料种子。
 
 示例：只需要金融银行卡挂失的槽位数据时，勾选“金融”，只选“办理银行卡挂失”，只勾“独立槽位提取”。输出只包含该方向。
 
-停止按钮会保存完整的已生成样本和报告。关闭生成中的窗口也会先停止并保存。输出按完整行写入，大小可能略超过目标；单位 MiB = 1,048,576 字节。
+停止按钮会保存完整的已生成样本和报告。关闭生成中的窗口也会先停止并保存。输出按完整记录写入，大小可能略超过目标；单位 MiB = 1,048,576 字节。
 
 ## 支持范围
 
@@ -46,11 +56,25 @@ python app.py
 
 前六项适用于所有行业。`ecom` 仅适用于电商退货、换货、仅退款、售后进度；选择其他业务时界面自动禁用。命令行自动将不适用的 `ecom` 权重归零，其余任务重新归一化；如果没有可用任务则报错。
 
+## 自定义输入、输出及多对一关联
+
+在“输入模板”加载 [物流模板](examples/logistics-templates.json)，修改 `${快递}` / `${tracking}` 的位置和词库；`segments + shuffle` 可随机重排片段。在“输入输出关联”加载 [关联规则](examples/association-rules.json)，把多个输入词绑定到同一业务场景，并定义两种语言的输出值。在“自定义数据格式”加载 [输出模板](examples/format-logistics.json)，自由修改顶层和嵌套 key。
+
+例如，`快递号 / 运单号 / 物流单号 → 查询物流`，`tracking number / shipment number / parcel number → track shipment`。输出可自行命名为 `意图名称`、`action` 或其他 key；`${associated.category}` 读取关联值，`${slots.tracking_no}` 读取已标注实体。缺失字段返回 JSON null。
+
+```powershell
+python dataset_gen_core.py --dst output/logistics.jsonl --mb 1 --industries ecom --scenarios ecom:logistics:QUERY --tasks intent --language en --label-language follow --utterance-templates examples/logistics-templates.json --association-rules examples/association-rules.json --record-format custom --format-schema examples/format-logistics.json
+```
+
+该命令生成英文输入和英文标签值；改为 `--language zh` 即使用中文输入/输出词汇。JSON key 按同一输出模板保持不变；需要不同 key 时直接编辑模板。自定义输出词汇属于导出层，内部仍使用可校验的业务场景和编码。
+
 ## 随机性与质量控制
 
 - **每次自动随机**：种子留空时使用系统熵创建 64 位种子；实际种子写入日志和报告。
 - **可复现**：指定相同种子、参考日期、任务/场景/权重/结构上限，并关闭历史去重，数据内容可复现。日期留空时使用运行当天。
 - **局部随机源**：每次生成使用独立 `random.Random`，不修改 Python 全局随机状态。
+- **可扩展词池**：默认加入商品、品牌、机构、课程等组合池；可导入任意规模的词表（受可用内存限制），通过语言/场景分组及安全组合模板扩展。按需采样，不展开笛卡尔积；词表/模板打乱轮换。编号组合空间很大，但词汇多样性不等于语义多样性。
+- **种子隔离**：默认使用训练侧种子；测试模式仅用测试侧种子及其扩增，不调用内置或自定义输入模板补足。稳定分组索引保存指纹和归属。
 - **场景覆盖**：按场景随机轮换，组合请求句式、信息顺序、缺失字段、多轮更正/撤回和工具流程节点。
 - **输入去重与冲突检测**：在相同任务内比较完整模型输入，规范化大小写、空白、部分标点和称呼。相同输入只保留一次；同输入不同答案被拒绝。
 - **结构重复上限**：将动态槽位、编号和数字归一化后，对相同词汇结构设上限。默认 200，可按需求降低。该功能是规则指纹控制，并非语义向量去重；不同措辞仍可能表达相同含义。

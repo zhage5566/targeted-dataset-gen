@@ -6,8 +6,8 @@ from datetime import timedelta
 
 
 class TargetedMixin:
-    def __init__(self, seed, reference_date=None, industries=None, scenario_ids=None):
-        super().__init__(seed, reference_date)
+    def __init__(self, seed, reference_date=None, industries=None, scenario_ids=None, language="zh"):
+        super().__init__(seed, reference_date, language)
         industries = list(C.INDUSTRIES) if industries is None else list(industries)
         if not industries or set(industries) - set(C.INDUSTRIES):
             raise ValueError("请选择至少一个有效行业")

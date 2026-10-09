@@ -23,10 +23,15 @@ from itertools import combinations
 import scenes as S
 import catalogue as C
 from targeting import TargetedMixin
+from data_formats import RecordFormat, RecordWriter, RECORD_FORMATS, FILE_FORMATS
+from seed_corpus import SeedCorpus
+from language_support import EnglishMixin, EN_SYS, EN_SHOES, EN_CLOTHES, EN_ISSUES, validate_english_state
+from seed_partition import SeedPartition
 
-VERSION = "2.0.0"
+VERSION = "2.1.0"
 SYS = dict(S.SYS)
 SYS["slots"] = '你是任务型对话的槽位抽取助手。抽取用户明确提供的信息，不推测未提供的值。只输出 JSON 对象：{"slots":{"槽位名":"值"}}。'
+SYS_BY_LANGUAGE = {"zh": SYS, "en": EN_SYS}
 TASKS = ("intent", "slots", "domain", "dst_user", "dst_belief", "clarify", "ecom")
 DEFAULT_WEIGHTS = dict(zip(TASKS, (16, 12, 4, 28, 10, 8, 22)))
 DST = str(Path.home() / "Desktop" / "targeted_dataset_v2.jsonl")
@@ -55,6 +60,9 @@ class Sample:
     obj: dict
     masks: tuple = ()
     scene: str = ""
+    language: str = "zh"
+    seed_group: str = ""
+    seed_split: str = ""
 
     @property
     def prompt(self):
@@ -80,7 +88,9 @@ class Sample:
 
 
 class BaseGenerator:
-    def __init__(self, seed, reference_date=None):
+    def __init__(self, seed, reference_date=None, language="zh"):
+        if language not in SYS_BY_LANGUAGE: raise ValueError("语料语言必须为 zh 或 en")
+        self.language = language
         self.rng = random.Random(seed)
         self.today = date.fromisoformat(reference_date) if reference_date else date.today()
         self.counts = Counter()
@@ -235,8 +245,8 @@ class BaseGenerator:
     def single(self, task, user, answer, scene):
         if not isinstance(answer, str):
             answer = dumps(answer)
-        return Sample(task, {"messages": [{"role": "system", "content": SYS[task]},
-                       {"role": "user", "content": user}, {"role": "assistant", "content": answer}]}, tuple(self.values), scene)
+        return Sample(task, {"messages": [{"role": "system", "content": SYS_BY_LANGUAGE[self.language][task]},
+                       {"role": "user", "content": user}, {"role": "assistant", "content": answer}]}, tuple(self.values), scene, self.language)
 
 
 
@@ -317,7 +327,11 @@ class BaseGenerator:
         return getattr(self, task)()
 
 
-class Generator(TargetedMixin, BaseGenerator):
+from entity_pools import EntityPoolMixin
+from utterance_templates import UtteranceTemplateMixin
+
+
+class Generator(UtteranceTemplateMixin, EntityPoolMixin, EnglishMixin, TargetedMixin, BaseGenerator):
     pass
 
 
@@ -326,8 +340,10 @@ def validate(sample):
     msgs = sample.obj.get("messages")
     if not isinstance(msgs, list) or len(msgs) < 3:
         raise ValueError("messages 格式错误")
-    if msgs[0] != {"role": "system", "content": SYS[sample.task]} or msgs[-1]["role"] != "assistant":
+    language = next((lang for lang, prompts in SYS_BY_LANGUAGE.items() if msgs[0] == {"role":"system","content":prompts[sample.task]}),None)
+    if language is None or msgs[-1]["role"] != "assistant":
         raise ValueError("系统提示词或末轮角色错误")
+    sample.language = language
     previous = "system"
     for m in msgs[1:]:
         if m.get("role") not in ("user", "assistant") or m["role"] == previous or not isinstance(m.get("content"), str) or not m["content"].strip():
@@ -351,10 +367,14 @@ def validate(sample):
             if any(not v or v not in uc for v in ans["slots"].values()): raise ValueError("槽位值未出现在话术中")
             if "product" in ans["slots"] and "size" in ans["slots"]:
                 p, size = ans["slots"]["product"], ans["slots"]["size"]
-                pool = S.SHOE_SIZES if p in S.WEAR_SHOE else S.CLOTH_SIZES if p in S.WEAR_CLOTH else []
+                if language == "en": pool = [s.rstrip("码") for s in S.SHOE_SIZES] if p in EN_SHOES else ["S","M","L","XL","XXL"] if p in EN_CLOTHES else []
+                else: pool = S.SHOE_SIZES if p in S.WEAR_SHOE else S.CLOTH_SIZES if p in S.WEAR_CLOTH else []
                 if size not in pool: raise ValueError("商品与尺码不匹配")
         elif set(ans) != {"domain"}: raise ValueError("领域标签结构错误")
     elif sample.task in ("dst_user", "dst_belief"):
+        if language == "en":
+            validate_english_state(sample)
+            return True
         ans = json.loads(ac)
         entries = ans if sample.task == "dst_user" else [{"domain": k.split("-", 1)[0], "slot": k.split("-", 1)[1], "value": v, "active": True} for k, v in ans.items()]
         keys = set()
@@ -371,19 +391,28 @@ def validate(sample):
             withdrawn = "撤回" in last or "先取消这项" in last
             if e["active"] == withdrawn or (e["active"] and e["value"] not in last): raise ValueError("DST 最新状态错误")
     elif sample.task == "clarify":
+        if language == "en":
+            marker = "Missing information: "
+            if marker not in uc: raise ValueError("Missing clarification metadata")
+            missing = uc.split(marker,1)[1].rstrip(".")
+            if not ac.endswith("?") or any(k not in ac for k in missing.split(", ")):
+                raise ValueError("Clarification omitted required information")
+            return True
         missing = uc.split("所需信息: 需要补充", 1)[-1].rstrip("。")
         if not ac.endswith("？") or any(field not in ac for field in missing.split("、")): raise ValueError("澄清问题遗漏必要信息")
     else:
-        validate_ecom(msgs)
+        validate_ecom(msgs, language)
     return True
 
 
-def validate_ecom(msgs):
+def validate_ecom(msgs, language="zh"):
     order = policy = pending = created = None
     user_history = ""
+    result_prefix = "Tool result: " if language == "en" else "工具返回: "
+    issues = EN_ISSUES if language == "en" else S.ISSUE_TYPES
     for m in msgs[1:]:
         text = m["content"]
-        if m["role"] == "user" and not text.startswith("工具返回: "):
+        if m["role"] == "user" and not text.startswith(result_prefix):
             user_history += text
         elif m["role"] == "assistant" and text.startswith("Action: "):
             match = re.fullmatch(r"Action: (\w+)\nAction Input: (.+)", text)
@@ -395,15 +424,15 @@ def validate_ecom(msgs):
             if tool not in schemas or set(params) != schemas[tool] or params["order_id"] not in user_history: raise ValueError("工具参数错误或缺少用户订单号")
             if tool != "query_order_status" and (not order or params["order_id"] != order["order_id"]): raise ValueError("未经订单核实调用售后工具")
             issue = params.get("issue_type", params.get("reason"))
-            if issue and (issue not in S.ISSUE_TYPES or not any(t in user_history for t in S.ISSUE_TYPES[issue])): raise ValueError("售后原因无用户证据")
+            if issue and (issue not in issues or not any(t in user_history for t in issues[issue])): raise ValueError("售后原因无用户证据")
             if tool == "create_after_sales_request":
                 if not policy or not policy["eligible"] or params["request_type"] not in policy["allowed_request_types"]: raise ValueError("违反工具返回的政策")
                 if order["identity_verification_status"] != "verified" or order["after_sales_request"]: raise ValueError("身份未核验或重复创建")
-                if policy["evidence_required"] and "已上传商品问题照片" not in user_history: raise ValueError("缺少问题凭证")
-                if "不要提交申请" in user_history: raise ValueError("未获提交授权")
+                if policy["evidence_required"] and ("I have uploaded photos of the item problem" if language == "en" else "已上传商品问题照片") not in user_history: raise ValueError("缺少问题凭证")
+                if ("Do not submit" if language == "en" else "不要提交申请") in user_history: raise ValueError("未获提交授权")
             pending = (tool, params)
-        elif m["role"] == "user" and text.startswith("工具返回: "):
-            ret = json.loads(text[len("工具返回: "):])
+        elif m["role"] == "user" and text.startswith(result_prefix):
+            ret = json.loads(text[len(result_prefix):])
             if not pending or ret.get("tool") != pending[0] or type(ret.get("ok")) is not bool: raise ValueError("工具返回与调用不对应")
             data = ret["data"]
             if ret["ok"]:
@@ -418,7 +447,8 @@ def validate_ecom(msgs):
                 else: created = data
             pending = None
         elif m["role"] == "assistant":
-            if ("已提交" in text or "申请成功" in text) and not created: raise ValueError("无成功工具返回却声称提交")
+            claimed_success = "submitted successfully" in text if language == "en" else ("已提交" in text or "申请成功" in text)
+            if claimed_success and not created: raise ValueError("无成功工具返回却声称提交")
             if created and created["request_id"] not in text: raise ValueError("最终回复未引用真实售后单")
 
 
@@ -454,7 +484,11 @@ class Deduper:
 
 def main(dst=DST, target_bytes=TARGET, seed=None, src=SRC, weights_override=None,
          include_original=False, progress_cb=None, stop_event=None, shape_limit=200,
-         history_path=None, reference_date=None, industries=None, scenario_ids=None):
+         history_path=None, reference_date=None, industries=None, scenario_ids=None,
+         seed_paths=None, seed_config=None, seed_share=.3, seed_augment=True,
+         record_format="messages", format_schema=None, file_format=None, language="zh", label_language="canonical",
+         seed_split="train", test_fraction=.2, split_seed=42, seed_registry=None,
+         entity_pools=None, expanded_pools=True, utterance_templates=None, association_rules=None):
     if isinstance(target_bytes, bool) or not isinstance(target_bytes, int) or target_bytes <= 0: raise ValueError("目标字节数必须为正整数")
     if not isinstance(shape_limit, int) or not 1 <= shape_limit <= 100000: raise ValueError("相似结构上限应为 1–100000")
     weights = dict(DEFAULT_WEIGHTS)
@@ -464,20 +498,51 @@ def main(dst=DST, target_bytes=TARGET, seed=None, src=SRC, weights_override=None
     if any(not isinstance(v, (int, float)) or not math.isfinite(v) or v < 0 for v in weights.values()) or not sum(weights.values()) > 0:
         raise ValueError("任务权重必须有限、非负，且至少启用一项")
     seed = secrets.randbits(64) if seed is None else int(seed)
-    gen = Generator(seed, reference_date, ["ecom"] if industries is None else industries, scenario_ids)
+    gen = Generator(seed, reference_date, ["ecom"] if industries is None else industries, scenario_ids, language,
+                    entity_pools=entity_pools, expanded_pools=expanded_pools,utterance_templates=utterance_templates)
     if not gen.agent_targets:
         weights["ecom"] = 0
     active = [k for k in TASKS if weights[k] > 0]
     if not active: raise ValueError("请选择适用于当前行业与业务场景的任务")
     shares = {k: weights[k] / sum(weights.values()) for k in active}
     dst = str(Path(dst).expanduser().resolve())
-    if Path(dst).suffix.lower() != ".jsonl": raise ValueError("输出文件请使用 .jsonl 扩展名")
+    file_format = file_format or Path(dst).suffix.lower().lstrip(".")
+    if file_format not in FILE_FORMATS or Path(dst).suffix.lower() != "." + file_format:
+        raise ValueError("输出扩展名需匹配 .jsonl、.json 或 .csv 文件格式")
+    from association_rules import AssociationRules
+    associations=AssociationRules(association_rules)
+    layout = RecordFormat(record_format, format_schema, label_language,associations)
+    writer = RecordWriter(layout, file_format)
+    seed_paths = [seed_paths] if isinstance(seed_paths, (str, Path)) else list(seed_paths or [])
+    if seed_paths and seed_split != "all" and seed_registry is None:
+        seed_registry = str(Path(os.getenv("LOCALAPPDATA",str(Path.home()))) / "EcomDatasetGen" / "seed-splits-v1.sqlite3")
+    if not isinstance(seed_share, (int, float)) or not math.isfinite(seed_share) or not 0 < seed_share <= 1:
+        raise ValueError("语料种子混入比例上限应大于 0 且不超过 1")
+    protected = {Path(dst), Path(dst + ".quality.json"), Path(dst + ".failed-report.json")}
+    if isinstance(association_rules,(str,Path)) and Path(association_rules).expanduser().resolve() in protected | {Path(p).expanduser().resolve() for p in seed_paths} | ({Path(history_path).expanduser().resolve()} if history_path else set()) | ({Path(seed_registry).expanduser().resolve()} if seed_registry else set()):
+        raise ValueError("关联规则文件不能与输出、种子或索引路径相同")
+    if isinstance(utterance_templates,(str,Path)) and Path(utterance_templates).expanduser().resolve() in protected | {Path(p).expanduser().resolve() for p in seed_paths} | ({Path(history_path).expanduser().resolve()} if history_path else set()) | ({Path(seed_registry).expanduser().resolve()} if seed_registry else set()):
+        raise ValueError("输入模板文件不能与输出、种子或索引路径相同")
+    if isinstance(entity_pools,(str,Path)) and Path(entity_pools).expanduser().resolve() in protected | {Path(p).expanduser().resolve() for p in seed_paths} | ({Path(history_path).expanduser().resolve()} if history_path else set()) | ({Path(seed_registry).expanduser().resolve()} if seed_registry else set()):
+        raise ValueError("词池文件不能与输出、种子或索引路径相同")
+    if any(Path(p).expanduser().resolve() in protected for p in seed_paths):
+        raise ValueError("输出或报告不能覆盖语料种子文件")
+    if history_path and Path(history_path).expanduser().resolve() in {Path(p).expanduser().resolve() for p in seed_paths}:
+        raise ValueError("历史索引不能覆盖语料种子文件")
+    if seed_registry and Path(seed_registry).expanduser().resolve() in protected | {Path(p).expanduser().resolve() for p in seed_paths} | ({Path(history_path).expanduser().resolve()} if history_path else set()):
+        raise ValueError("种子划分索引不能与输出、种子或去重历史文件相同")
+    if include_original and seed_paths and seed_split == "test": raise ValueError("测试种子模式不能混入原始训练样本")
     Path(dst).parent.mkdir(parents=True, exist_ok=True)
     if src and Path(src).resolve() == Path(dst): raise ValueError("输出文件不能覆盖原始样本文件")
     if history_path and Path(history_path).resolve() in (Path(dst), Path(dst + ".quality.json"), Path(str(src)).resolve()): raise ValueError("历史索引路径不能与数据文件相同")
     if include_original and (not src or not Path(src).is_file()): raise ValueError("选择的原始样本文件不存在")
     stats, byte_stats, rejects, scene_stats, errors = Counter(), Counter(), Counter(), Counter(), Counter()
     written = original_count = attempts = consecutive_rejections = 0
+    seed_counts, seed_byte_stats, seed_failures = Counter(), Counter(), Counter()
+    seed_disabled = set()
+    exhausted = False
+    partition = None
+    emitted_groups = set()
     stopped = False
     start = last_progress = time.monotonic()
     report_path = dst + ".quality.json"
@@ -489,25 +554,50 @@ def main(dst=DST, target_bytes=TARGET, seed=None, src=SRC, weights_override=None
         if progress_cb: progress_cb(written, target_bytes, message)
     notify(f"随机种子：{seed}；参考日期：{gen.today.isoformat()}；逐条校验 + 输入去重 + 结构上限 {shape_limit}")
     try:
+        corpus = None
+        if seed_paths:
+            partition = SeedPartition(seed_split,test_fraction,split_seed,seed_registry)
+            notify("读取语料种子，检查字段、标签、所选场景及重复输入…")
+            # Import modules are kept independent from core to avoid circular imports.
+            import sys
+            corpus = SeedCorpus.load(seed_paths, seed_config, gen.targets, active, sys.modules[__name__],
+                                     seed, stop_event, notify=notify, language=language, partition=partition,associations=associations)
+            if not corpus.report["retained"] and not (stop_event is not None and stop_event.is_set()):
+                reasons = "; ".join(f"{k}: {v}" for k, v in corpus.report["filtered"].items())
+                raise ValueError("没有可用语料种子。" + (reasons[:600] or "文件为空"))
+            notify(f"语料种子扫描 {corpus.report['scanned']} 条，合格 {corpus.report['valid']} 条，保留 {corpus.report['retained']} 条")
+            if seed_split == "test":
+                active = [k for k in active if corpus.samples[k]]
+                shares = {k: weights[k]/sum(weights[t] for t in active) for k in active}
         # 仅在成功结束或主动停止后替换目标，异常不会破坏已存在的数据集。
         fd, staging = tempfile.mkstemp(prefix=Path(dst).stem + "-", suffix=".partial", dir=Path(dst).parent)
         with os.fdopen(fd, "wb", buffering=1024*1024) as out:
-            def emit(sample, original=False):
+            def emit(sample, original=False, seed_kind=None):
                 nonlocal written, original_count
                 validate(sample)
+                if not associations.allows(sample):
+                    rejects['association_conflict']+=1
+                    return False
+                if partition and not partition.allows(sample,sys.modules[__name__]):
+                    rejects["opposite_seed_partition"] += 1
+                    return False
                 reason = deduper.accept(sample)
                 if reason:
                     rejects[reason] += 1
                     return False
-                blob = (dumps(sample.obj) + "\n").encode("utf-8")
+                blob = writer.encode(sample)
                 out.write(blob)
                 written += len(blob)
                 byte_stats[sample.task] += len(blob)
                 stats[sample.task] += 1
                 scene_stats[sample.task + ":" + sample.scene] += 1
                 if original: original_count += 1
+                if seed_kind:
+                    seed_counts[seed_kind] += 1
+                    seed_byte_stats[sample.task] += len(blob)
+                if sample.seed_group: emitted_groups.add(sample.seed_group)
                 return True
-            if include_original and "ecom" in active:
+            if include_original and "ecom" in active and language == "zh":
                 notify("扫描原始文件，只混入通过相同校验的售后样本…")
                 with open(src, encoding="utf-8-sig") as source:
                     for line in source:
@@ -537,14 +627,41 @@ def main(dst=DST, target_bytes=TARGET, seed=None, src=SRC, weights_override=None
                 floor = min(ratios.values())
                 pool = [k for k in active if ratios[k] <= floor + 4096]
                 task = gen.pick(pool)
-                sample = gen.generate(task)
+                sample, seed_kind = None, None
+                if (corpus and task not in seed_disabled and
+                        (seed_split == "test" or seed_byte_stats[task] < target_bytes * shares[task] * seed_share)):
+                    try:
+                        import sys
+                        sample, seed_kind = corpus.next(task, gen, sys.modules[__name__], seed_augment)
+                    except (ValueError, KeyError, TypeError, IndexError) as exc:
+                        rejects["seed_augmentation_invalid"] += 1
+                        seed_failures[task] += 1
+                    if sample is None:
+                        # A finite seed pool never gets repeated to reach the target.
+                        if not corpus.augmentable[task] or not seed_augment: seed_disabled.add(task)
+                if sample is None:
+                    if corpus and seed_split == "test":
+                        seed_disabled.add(task)
+                        active = [t for t in active if t not in seed_disabled]
+                        if not active: exhausted = True; break
+                        continue
+                    seed_kind = None
+                    sample = gen.generate(task)
                 attempts += 1
                 try:
-                    accepted = emit(sample)
+                    accepted = emit(sample, seed_kind=seed_kind)
                 except (ValueError, KeyError, TypeError, IndexError) as exc:
                     errors[str(exc)] += 1
                     raise RuntimeError(f"生成器校验失败 [{task}]：{exc}") from exc
-                if accepted: consecutive_rejections = 0
+                if seed_kind and not accepted: seed_failures[task] += 1
+                if seed_failures[task] >= 100:
+                    seed_disabled.add(task)
+                    if corpus and seed_split == "test":
+                        active = [t for t in active if t not in seed_disabled]
+                        if not active: exhausted = True; break
+                if accepted:
+                    consecutive_rejections = 0
+                    if seed_kind: seed_failures[task] = 0
                 else: consecutive_rejections += 1
                 if consecutive_rejections >= 20000:
                     raise RuntimeError("当前去重/结构限制下连续 20000 次无新样本。请增大结构上限、减少目标大小或更换历史索引。")
@@ -552,6 +669,9 @@ def main(dst=DST, target_bytes=TARGET, seed=None, src=SRC, weights_override=None
                 if now - last_progress >= .8:
                     notify(f"{written/1048576:.1f} MB / {sum(stats.values())} 条；过滤 {sum(rejects.values())} 条；{written/max(now-start,.001)/1048576:.2f} MB/s")
                     last_progress = now
+            footer = writer.finish()
+            out.write(footer)
+            written += len(footer)
             out.flush()
             os.fsync(out.fileno())
         os.replace(staging, dst)
@@ -564,6 +684,19 @@ def main(dst=DST, target_bytes=TARGET, seed=None, src=SRC, weights_override=None
                   "shape_limit": shape_limit, "distinct_shapes": {k: sum(1 for t, _ in deduper.shapes if t == k) for k in active},
                   "max_shape_frequency": {k: max((n for (t, _), n in deduper.shapes.items() if t == k), default=0) for k in active},
                   "scene_counts": dict(scene_stats), "history_path": str(history_path) if history_path else None,
+                  "record_format": record_format, "file_format": file_format, "format_schema": layout.schema,
+                  "language": language, "label_language": label_language,
+                  "entity_pools": gen.entity_pools.report(),
+                  "utterance_templates": gen.utterance_templates.report(),
+                  "association_rules": associations.report(),
+                  "container_footer_bytes": len(footer),
+                  "seed_corpus": corpus.report if corpus else None,
+                  "seed_config": seed_config or {}, "seed_share_limit": seed_share,
+                  "seed_augmentation_enabled": bool(seed_augment), "seed_counts": dict(seed_counts),
+                  "seed_bytes_by_task": dict(seed_byte_stats),
+                  "seed_byte_share": round(sum(seed_byte_stats.values()) / max(written, 1), 6),
+                  "seed_split": seed_split if corpus else None, "seed_source_exhausted": exhausted,
+                  "seed_groups_written": sorted(emitted_groups),
                   "seconds": round(time.monotonic()-start, 3), "report_path": report_path,
                   "note": "本报告衡量格式、标签一致性与模板多样性；合成样本不等同于真实业务数据，synthetic-v2 为模拟工具政策。"}
         Path(report_path).write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -581,6 +714,7 @@ def main(dst=DST, target_bytes=TARGET, seed=None, src=SRC, weights_override=None
         raise
     finally:
         deduper.close()
+        if partition: partition.close()
         temp.cleanup()
 
 
@@ -596,16 +730,46 @@ def cli():
     parser.add_argument("--scenarios", help="逗号分隔的业务场景 ID，使用 --list-scenes 查看")
     parser.add_argument("--tasks", help="逗号分隔的任务；留空采用默认配比")
     parser.add_argument("--list-scenes", action="store_true")
+    parser.add_argument("--seed-corpus", action="append", default=[], help="已标注语料文件，可重复指定 JSONL/JSON/CSV")
+    parser.add_argument("--seed-config", help="导入配置 JSON，含 fields/task/scene/max_records")
+    parser.add_argument("--seed-share", type=float, default=.3, help="每任务种子字节预算上限比例，默认 0.3")
+    parser.add_argument("--no-seed-augment", action="store_true", help="仅混入已标注种子原句，不替换槽位值")
+    parser.add_argument("--record-format", choices=RECORD_FORMATS, default="messages")
+    parser.add_argument("--format-schema", help="自定义 JSON 记录模板，配合 --record-format custom")
+    parser.add_argument("--file-format", choices=FILE_FORMATS, help="默认由输出扩展名推断")
+    parser.add_argument("--language", choices=["zh","en"], default="zh", help="生成语料语言")
+    parser.add_argument("--label-language", choices=["follow","zh","en","canonical"], default="follow", help="标签值语言；键名保持固定")
+    parser.add_argument("--seed-split", choices=["train","test","all"], default="train", help="训练或测试侧种子；默认自动隔离")
+    parser.add_argument("--test-fraction", type=float, default=.2)
+    parser.add_argument("--split-seed", type=int, default=42)
+    parser.add_argument("--seed-registry", help="持久化种子分组索引，只记录哈希和划分")
+    parser.add_argument("--entity-pools", help="自定义可替换实体词池 JSON，支持语言/场景作用域与组合模板")
+    parser.add_argument("--no-expanded-pools", action="store_true", help="关闭内置扩展词池，仍使用显式导入的词池")
+    parser.add_argument("--utterance-templates", help="自定义输入模板 JSON，定位占位词及对应词库")
+    parser.add_argument("--association-rules", help="输入关键词与场景/中英文输出词汇的显式关联 JSON")
     args = parser.parse_args()
     if args.list_scenes:
         for s in C.SCENARIOS: print(s["id"], C.INDUSTRIES[s["industry"]], s["action"])
         return
     if not math.isfinite(args.mb) or args.mb <= 0: parser.error("--mb 必须为有限正数")
     if args.tasks and set(args.tasks.split(",")) - set(TASKS): parser.error("--tasks 包含未知任务")
+    for config_path in [args.seed_config, args.format_schema]:
+        if config_path and Path(config_path).resolve() in (Path(args.dst).resolve(), Path(args.dst + ".quality.json").resolve()):
+            parser.error("输出不能覆盖配置/格式模板文件")
+    seed_config = json.loads(Path(args.seed_config).read_text(encoding="utf-8-sig")) if args.seed_config else None
+    schema = json.loads(Path(args.format_schema).read_text(encoding="utf-8-sig")) if args.format_schema else None
     main(dst=args.dst, target_bytes=int(args.mb*1048576), seed=args.seed, shape_limit=args.shape_limit,
          history_path=args.history, reference_date=args.reference_date,
          industries=args.industries.split(","), scenario_ids=args.scenarios.split(",") if args.scenarios else None,
          weights_override={k: 1 if k in args.tasks.split(",") else 0 for k in TASKS} if args.tasks else None,
+         seed_paths=args.seed_corpus, seed_config=seed_config, seed_share=args.seed_share,
+         seed_augment=not args.no_seed_augment, record_format=args.record_format,
+         format_schema=schema, file_format=args.file_format,
+         language=args.language, label_language=args.label_language,
+         seed_split=args.seed_split, test_fraction=args.test_fraction, split_seed=args.split_seed, seed_registry=args.seed_registry,
+         entity_pools=args.entity_pools, expanded_pools=not args.no_expanded_pools,
+         utterance_templates=args.utterance_templates,
+         association_rules=args.association_rules,
          progress_cb=lambda written, total, text: print(text, flush=True))
 
 

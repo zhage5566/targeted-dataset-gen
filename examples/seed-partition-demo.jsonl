@@ -1,0 +1,12 @@
+{"input": "请办理挂失，卡是卡尾号1000", "output": {"domain": "bank_card", "intent": "REPORT_LOSS", "slots": {"card_no": "卡尾号1000"}}, "scene": "finance:bank_card:REPORT_LOSS", "group_id": "demo-authored-dialogue-0"}
+{"input": "我的银行卡卡尾号1001找不到了，麻烦挂失", "output": {"domain": "bank_card", "intent": "REPORT_LOSS", "slots": {"card_no": "卡尾号1001"}}, "scene": "finance:bank_card:REPORT_LOSS", "group_id": "demo-authored-dialogue-1"}
+{"input": "需要冻结丢失的卡尾号1002", "output": {"domain": "bank_card", "intent": "REPORT_LOSS", "slots": {"card_no": "卡尾号1002"}}, "scene": "finance:bank_card:REPORT_LOSS", "group_id": "demo-authored-dialogue-2"}
+{"input": "卡尾号1003丢失了，帮忙挂失", "output": {"domain": "bank_card", "intent": "REPORT_LOSS", "slots": {"card_no": "卡尾号1003"}}, "scene": "finance:bank_card:REPORT_LOSS", "group_id": "demo-authored-dialogue-3"}
+{"input": "办理银行卡挂失，号码卡尾号1004", "output": {"domain": "bank_card", "intent": "REPORT_LOSS", "slots": {"card_no": "卡尾号1004"}}, "scene": "finance:bank_card:REPORT_LOSS", "group_id": "demo-authored-dialogue-4"}
+{"input": "请尽快挂失卡尾号1005", "output": {"domain": "bank_card", "intent": "REPORT_LOSS", "slots": {"card_no": "卡尾号1005"}}, "scene": "finance:bank_card:REPORT_LOSS", "group_id": "demo-authored-dialogue-5"}
+{"input": "我遗失卡尾号1006，想挂失", "output": {"domain": "bank_card", "intent": "REPORT_LOSS", "slots": {"card_no": "卡尾号1006"}}, "scene": "finance:bank_card:REPORT_LOSS", "group_id": "demo-authored-dialogue-6"}
+{"input": "挂失申请，银行卡卡尾号1007", "output": {"domain": "bank_card", "intent": "REPORT_LOSS", "slots": {"card_no": "卡尾号1007"}}, "scene": "finance:bank_card:REPORT_LOSS", "group_id": "demo-authored-dialogue-7"}
+{"input": "帮我报失卡尾号1008", "output": {"domain": "bank_card", "intent": "REPORT_LOSS", "slots": {"card_no": "卡尾号1008"}}, "scene": "finance:bank_card:REPORT_LOSS", "group_id": "demo-authored-dialogue-8"}
+{"input": "银行卡卡尾号1009不见了，需要办理挂失", "output": {"domain": "bank_card", "intent": "REPORT_LOSS", "slots": {"card_no": "卡尾号1009"}}, "scene": "finance:bank_card:REPORT_LOSS", "group_id": "demo-authored-dialogue-9"}
+{"input": "遗失银行卡卡尾号1010，请办理挂失手续", "output": {"domain": "bank_card", "intent": "REPORT_LOSS", "slots": {"card_no": "卡尾号1010"}}, "scene": "finance:bank_card:REPORT_LOSS", "group_id": "demo-authored-dialogue-10"}
+{"input": "请处理挂失，银行卡卡尾号1011", "output": {"domain": "bank_card", "intent": "REPORT_LOSS", "slots": {"card_no": "卡尾号1011"}}, "scene": "finance:bank_card:REPORT_LOSS", "group_id": "demo-authored-dialogue-11"}
