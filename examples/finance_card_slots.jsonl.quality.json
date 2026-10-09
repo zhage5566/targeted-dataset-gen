@@ -1,0 +1,45 @@
+{
+  "version": "2.0.0",
+  "dst": "finance_card_slots.jsonl",
+  "size": 52569,
+  "stats": {
+    "slots": 123
+  },
+  "bytes_by_task": {
+    "slots": 52569
+  },
+  "byte_shares": {
+    "slots": 1.0
+  },
+  "requested_shares": {
+    "slots": 1.0
+  },
+  "seed": 42,
+  "reference_date": "2026-10-09",
+  "stopped": false,
+  "dup": 0,
+  "industries": [
+    "finance"
+  ],
+  "scenario_ids": [
+    "finance:bank_card:REPORT_LOSS"
+  ],
+  "rejected": {},
+  "validation_errors": {},
+  "attempts": 123,
+  "original_count": 0,
+  "shape_limit": 200,
+  "distinct_shapes": {
+    "slots": 73
+  },
+  "max_shape_frequency": {
+    "slots": 43
+  },
+  "scene_counts": {
+    "slots:finance:bank_card:REPORT_LOSS": 123
+  },
+  "history_path": null,
+  "seconds": 0.034,
+  "report_path": "finance_card_slots.jsonl.quality.json",
+  "note": "本报告衡量格式、标签一致性与模板多样性；合成样本不等同于真实业务数据，synthetic-v2 为模拟工具政策。"
+}

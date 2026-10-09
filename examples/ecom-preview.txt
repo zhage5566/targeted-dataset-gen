@@ -1,0 +1,277 @@
+{
+  "messages": [
+    {
+      "content": "你是一个任务型对话的意图识别与槽位抽取助手。给定一句用户消息，识别其所属领域(domain)、意图(intent)，并抽取其中的槽位(slots，键为槽位名、值为槽位值)。只输出一个 JSON 对象：{\"domain\":\"领域\",\"intent\":\"意图\",\"slots\":{\"槽位名\":\"值\"}}。",
+      "role": "system"
+    },
+    {
+      "content": "收到的包裹外包装破了，足浴盆也压坏了。补充信息：快递单号是BT136171878809",
+      "role": "user"
+    },
+    {
+      "content": "{\"domain\":\"logistics\",\"intent\":\"EXCEPTION\",\"slots\":{\"product\":\"足浴盆\",\"tracking_no\":\"BT136171878809\"}}",
+      "role": "assistant"
+    }
+  ]
+}
+
+{
+  "messages": [
+    {
+      "content": "你是一个任务型对话的意图识别与槽位抽取助手。给定一句用户消息，识别其所属领域(domain)、意图(intent)，并抽取其中的槽位(slots，键为槽位名、值为槽位值)。只输出一个 JSON 对象：{\"domain\":\"领域\",\"intent\":\"意图\",\"slots\":{\"槽位名\":\"值\"}}。",
+      "role": "system"
+    },
+    {
+      "content": "发票抬头开错了，改成厦门锦程贸易有限公司\n订单号：EC-17BE31111A2A73ED",
+      "role": "user"
+    },
+    {
+      "content": "{\"domain\":\"invoice\",\"intent\":\"MODIFY\",\"slots\":{\"company\":\"厦门锦程贸易有限公司\",\"order_id\":\"EC-17BE31111A2A73ED\"}}",
+      "role": "assistant"
+    }
+  ]
+}
+
+{
+  "messages": [
+    {
+      "content": "你是任务型对话的槽位抽取助手。抽取用户明确提供的信息，不推测未提供的值。只输出 JSON 对象：{\"slots\":{\"槽位名\":\"值\"}}。",
+      "role": "system"
+    },
+    {
+      "content": "40码的靴子缺货了，还会补吗",
+      "role": "user"
+    },
+    {
+      "content": "{\"slots\":{\"product\":\"靴子\",\"size\":\"40码\"}}",
+      "role": "assistant"
+    }
+  ]
+}
+
+{
+  "messages": [
+    {
+      "content": "你是任务型对话的槽位抽取助手。抽取用户明确提供的信息，不推测未提供的值。只输出 JSON 对象：{\"slots\":{\"槽位名\":\"值\"}}。",
+      "role": "system"
+    },
+    {
+      "content": "订单号是EC-5AF305535EC42E08。发票抬头开错了，改成深圳锦程贸易有限公司",
+      "role": "user"
+    },
+    {
+      "content": "{\"slots\":{\"company\":\"深圳锦程贸易有限公司\",\"order_id\":\"EC-5AF305535EC42E08\"}}",
+      "role": "assistant"
+    }
+  ]
+}
+
+{
+  "messages": [
+    {
+      "content": "你是一个对话领域分类助手。给定一句用户消息，判断它属于哪个领域(domain)。只输出一个 JSON 对象：{\"domain\":\"领域名\"}。",
+      "role": "system"
+    },
+    {
+      "content": "行李箱的电子发票开一下，抬头西安远航贸易有限公司，税号91C2WHN6FUK44PGPDJ。补充信息：订单号是EC-C17AF08A1745D6D8",
+      "role": "user"
+    },
+    {
+      "content": "{\"domain\":\"invoice\"}",
+      "role": "assistant"
+    }
+  ]
+}
+
+{
+  "messages": [
+    {
+      "content": "你是一个对话领域分类助手。给定一句用户消息，判断它属于哪个领域(domain)。只输出一个 JSON 对象：{\"domain\":\"领域名\"}。",
+      "role": "system"
+    },
+    {
+      "content": "您好，会员生日有什么福利",
+      "role": "user"
+    },
+    {
+      "content": "{\"domain\":\"member\"}",
+      "role": "assistant"
+    }
+  ]
+}
+
+{
+  "messages": [
+    {
+      "content": "你是一个任务型对话的状态跟踪(DST)助手。根据对话历史和当前用户消息，输出当前累积的对话状态(user_state)：用户已表达的「领域-槽位-值」信息。只输出一个 JSON 数组，每个元素为 {\"domain\":\"领域\",\"slot\":\"槽位\",\"value\":\"值\",\"active\":true/false}。",
+      "role": "system"
+    },
+    {
+      "content": "用户: 您好，售后的诉求是申请换货。\n用户: 您好，售后这边，商品名称就按拖把。\n用户: 售后的订单号是EC-F42D47CC00D4AF59。\n用户: 售后这边，原因就按色差太大。",
+      "role": "user"
+    },
+    {
+      "content": "[{\"active\":true,\"domain\":\"售后\",\"slot\":\"诉求\",\"value\":\"申请换货\"},{\"active\":true,\"domain\":\"售后\",\"slot\":\"商品名称\",\"value\":\"拖把\"},{\"active\":true,\"domain\":\"售后\",\"slot\":\"订单号\",\"value\":\"EC-F42D47CC00D4AF59\"},{\"active\":true,\"domain\":\"售后\",\"slot\":\"原因\",\"value\":\"色差太大\"}]",
+      "role": "assistant"
+    }
+  ]
+}
+
+{
+  "messages": [
+    {
+      "content": "你是一个任务型对话的状态跟踪(DST)助手。根据对话历史和当前用户消息，输出当前累积的对话状态(user_state)：用户已表达的「领域-槽位-值」信息。只输出一个 JSON 数组，每个元素为 {\"domain\":\"领域\",\"slot\":\"槽位\",\"value\":\"值\",\"active\":true/false}。",
+      "role": "system"
+    },
+    {
+      "content": "用户: 商品的诉求是查询商品库存。\n系统: 还有需要更正的内容吗？\n用户: 商品的商品名称是鞋架。\n用户: 刚才商品的商品名称说错了，改为床垫。\n系统: 收到，请继续补充。\n用户: 关于商品，颜色：米白色。\n系统: 还有需要更正的内容吗？\n用户: 撤回商品的颜色信息，先留空。",
+      "role": "user"
+    },
+    {
+      "content": "[{\"active\":true,\"domain\":\"商品\",\"slot\":\"诉求\",\"value\":\"查询商品库存\"},{\"active\":true,\"domain\":\"商品\",\"slot\":\"商品名称\",\"value\":\"床垫\"},{\"active\":false,\"domain\":\"商品\",\"slot\":\"颜色\",\"value\":\"米白色\"}]",
+      "role": "assistant"
+    }
+  ]
+}
+
+{
+  "messages": [
+    {
+      "content": "你是一个任务型对话的状态跟踪(DST)助手。根据对话历史和当前用户消息，输出当前累积的对话状态(belief_state)：各领域已告知的槽位值。只输出一个 JSON 对象，键为「领域-槽位」，值为槽位值。",
+      "role": "system"
+    },
+    {
+      "content": "用户: 订单的诉求是确认收货。\n系统: 收到，请继续补充。\n用户: 订单的订单号是EC-DC815FE7CEDA8BBB。\n用户: 你好，订单的商品名称是衣架。",
+      "role": "user"
+    },
+    {
+      "content": "{\"订单-商品名称\":\"衣架\",\"订单-订单号\":\"EC-DC815FE7CEDA8BBB\",\"订单-诉求\":\"确认收货\"}",
+      "role": "assistant"
+    }
+  ]
+}
+
+{
+  "messages": [
+    {
+      "content": "你是一个任务型对话的状态跟踪(DST)助手。根据对话历史和当前用户消息，输出当前累积的对话状态(belief_state)：各领域已告知的槽位值。只输出一个 JSON 对象，键为「领域-槽位」，值为槽位值。",
+      "role": "system"
+    },
+    {
+      "content": "用户: 订单的诉求是催促发货。\n系统: 请继续说明，我在记录。\n用户: 订单的商品名称是睫毛膏。\n系统: 还有其他信息需要补充吗？\n用户: 更正一下：订单的商品名称以纸巾为准。\n系统: 了解，以您最新说明为准。\n用户: 撤回订单的商品名称信息，先留空。\n用户: 关于订单，订单号：EC-BF7B539B0F9AEA4B。\n用户: 更正一下：订单的订单号以EC-DCA02EECACDABACC为准。",
+      "role": "user"
+    },
+    {
+      "content": "{\"订单-订单号\":\"EC-DCA02EECACDABACC\",\"订单-诉求\":\"催促发货\"}",
+      "role": "assistant"
+    }
+  ]
+}
+
+{
+  "messages": [
+    {
+      "content": "你是一个澄清问题生成助手。给定用户模糊的初始请求及其主题、所需信息方面，生成一个具体的澄清问题以消除歧义。只输出澄清问题本身。",
+      "role": "system"
+    },
+    {
+      "content": "用户请求: 请帮忙修改配送地址\n补充：城市：宁波\n主题: 用户希望修改配送地址。\n所需信息: 需要补充快递单号。",
+      "role": "user"
+    },
+    {
+      "content": "请补充一下快递单号，可以吗？",
+      "role": "assistant"
+    }
+  ]
+}
+
+{
+  "messages": [
+    {
+      "content": "你是一个澄清问题生成助手。给定用户模糊的初始请求及其主题、所需信息方面，生成一个具体的澄清问题以消除歧义。只输出澄清问题本身。",
+      "role": "system"
+    },
+    {
+      "content": "用户请求: 我需要查询退款进度\n主题: 用户希望查询退款进度。\n所需信息: 需要补充支付方式、订单号、金额。",
+      "role": "user"
+    },
+    {
+      "content": "请补充一下支付方式、订单号、金额，可以吗？",
+      "role": "assistant"
+    }
+  ]
+}
+
+{
+  "messages": [
+    {
+      "content": "你是电商售后客服助手。根据对话历史和工具返回结果，决定下一步动作：调用某个工具(Action)或直接回复用户。可用工具：query_order_status、check_return_policy、create_after_sales_request。调用工具时输出两行：第一行 `Action: 工具名`，第二行 `Action Input: {\"参数\":\"值\"}`。",
+      "role": "system"
+    },
+    {
+      "content": "您好，订单号EC-217D65A0C56811CD。挂烫机出现商品破损，我想仅退款。",
+      "role": "user"
+    },
+    {
+      "content": "Action: query_order_status\nAction Input: {\"order_id\":\"EC-217D65A0C56811CD\"}",
+      "role": "assistant"
+    },
+    {
+      "content": "工具返回: {\"data\":{\"after_sales_request\":null,\"days_since_delivery\":null,\"fulfillment_status\":\"shipped\",\"identity_verification_status\":\"required\",\"item_summary\":\"挂烫机\",\"order_id\":\"EC-217D65A0C56811CD\",\"payment_status\":\"refunded\"},\"ok\":true,\"tool\":\"query_order_status\"}",
+      "role": "user"
+    },
+    {
+      "content": "Action: check_return_policy\nAction Input: {\"issue_type\":\"damaged\",\"order_id\":\"EC-217D65A0C56811CD\"}",
+      "role": "assistant"
+    },
+    {
+      "content": "工具返回: {\"data\":{\"allowed_request_types\":[],\"eligible\":false,\"evidence_required\":true,\"issue_type\":\"damaged\",\"message\":\"订单已退款，无法重复申请退款或换货。\",\"order_id\":\"EC-217D65A0C56811CD\",\"policy_version\":\"synthetic-v2\",\"reason_code\":\"ALREADY_REFUNDED\"},\"ok\":true,\"tool\":\"check_return_policy\"}",
+      "role": "user"
+    },
+    {
+      "content": "当前无法申请仅退款：订单已退款，无法重复申请退款或换货。我可协助转人工进一步核实。",
+      "role": "assistant"
+    }
+  ]
+}
+
+{
+  "messages": [
+    {
+      "content": "你是电商售后客服助手。根据对话历史和工具返回结果，决定下一步动作：调用某个工具(Action)或直接回复用户。可用工具：query_order_status、check_return_policy、create_after_sales_request。调用工具时输出两行：第一行 `Action: 工具名`，第二行 `Action Input: {\"参数\":\"值\"}`。",
+      "role": "system"
+    },
+    {
+      "content": "订单号EC-3FE12E47AE9BEC36。我收到的电竞椅收到的不是我拍的商品，请协助退货退款。",
+      "role": "user"
+    },
+    {
+      "content": "Action: query_order_status\nAction Input: {\"order_id\":\"EC-3FE12E47AE9BEC36\"}",
+      "role": "assistant"
+    },
+    {
+      "content": "工具返回: {\"data\":{\"after_sales_request\":null,\"days_since_delivery\":8,\"fulfillment_status\":\"delivered\",\"identity_verification_status\":\"verified\",\"item_summary\":\"电竞椅\",\"order_id\":\"EC-3FE12E47AE9BEC36\",\"payment_status\":\"paid\"},\"ok\":true,\"tool\":\"query_order_status\"}",
+      "role": "user"
+    },
+    {
+      "content": "Action: check_return_policy\nAction Input: {\"issue_type\":\"wrong_item\",\"order_id\":\"EC-3FE12E47AE9BEC36\"}",
+      "role": "assistant"
+    },
+    {
+      "content": "工具返回: {\"data\":{\"allowed_request_types\":[\"return_refund\",\"exchange\"],\"eligible\":true,\"evidence_required\":false,\"issue_type\":\"wrong_item\",\"message\":\"问题商品可申请退货退款或换货，需审核凭证。\",\"order_id\":\"EC-3FE12E47AE9BEC36\",\"policy_version\":\"synthetic-v2\",\"reason_code\":\"QUALITY_REVIEW\"},\"ok\":true,\"tool\":\"check_return_policy\"}",
+      "role": "user"
+    },
+    {
+      "content": "Action: create_after_sales_request\nAction Input: {\"order_id\":\"EC-3FE12E47AE9BEC36\",\"reason\":\"wrong_item\",\"request_type\":\"return_refund\"}",
+      "role": "assistant"
+    },
+    {
+      "content": "工具返回: {\"data\":{\"order_id\":\"EC-3FE12E47AE9BEC36\",\"request_id\":\"AS-BC2CBB0DDD334CC7\",\"request_type\":\"return_refund\",\"status\":\"submitted\"},\"ok\":true,\"tool\":\"create_after_sales_request\"}",
+      "role": "user"
+    },
+    {
+      "content": "已提交退货退款申请，售后单号AS-BC2CBB0DDD334CC7，状态为submitted。请在售后页面查看审核进度。",
+      "role": "assistant"
+    }
+  ]
+}

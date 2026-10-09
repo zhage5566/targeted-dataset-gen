@@ -1,0 +1,44 @@
+{
+  "regression_tests": 13,
+  "gui_test": "PASS: finance / card-loss / slots-only",
+  "stress_rows": 140267,
+  "stress_bytes": 104858076,
+  "duplicate_inputs": 0,
+  "all_rows_revalidated": true,
+  "byte_shares": {
+    "intent": 0.159996,
+    "slots": 0.120003,
+    "domain": 0.04,
+    "dst_user": 0.279991,
+    "dst_belief": 0.100006,
+    "clarify": 0.079998,
+    "ecom": 0.220007
+  },
+  "max_shape_frequency": {
+    "intent": 179,
+    "slots": 200,
+    "domain": 80,
+    "dst_user": 21,
+    "dst_belief": 9,
+    "clarify": 9,
+    "ecom": 14
+  },
+  "seconds": 50.171,
+  "stress_sha256": "694265277af9cb49940ca013dd7d287035a2c8a45581fc9171f655e21053a202",
+  "python_versions_tested": [
+    "3.10",
+    "3.12",
+    "3.13"
+  ],
+  "layout_test": "PASS: all primary controls visible at 920x840 and 920x760",
+  "scene_count": 68,
+  "scenes_by_industry": {
+    "ecom": 34,
+    "finance": 12,
+    "travel": 8,
+    "telecom": 7,
+    "education": 7
+  },
+  "executable_self_test": "PASS Tk UI + 1421 samples / five industries; exit code 0",
+  "executable_sha256": "58dcca1e1e24c7a7767c3cd85505ae2f8f7bdd7bcd153c403a0755c0ae831d17"
+}

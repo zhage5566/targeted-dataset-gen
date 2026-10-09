@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+build/
+dist/
+*.egg-info/
+*.spec
+*.exe
+*.whl
+*.zip
+*.jsonl
+*.partial
+*.sqlite3*
+output/
+!examples/*.jsonl
+SHA256SUMS.txt

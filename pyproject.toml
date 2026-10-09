@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "targeted-dataset-gen"
+version = "2.0.0"
+description = "Local Chinese task-oriented dialogue dataset generation with industry and scenario targeting"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Targeted Dataset Generator contributors"}]
+dependencies = []
+
+[project.scripts]
+targeted-dataset = "dataset_gen_core:cli"
+
+[project.gui-scripts]
+targeted-dataset-ui = "app:launch"
+
+[tool.setuptools]
+py-modules = ["app", "dataset_gen_core", "targeting", "catalogue", "scenes"]
