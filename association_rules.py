@@ -100,7 +100,7 @@ class AssociationRules:
         if not aliases or sample.task=='slots': return sample
         answer=json.loads(sample.answer)
         for key,value in aliases.items():
-            if key in answer: answer[key]=value
+            if key in ('domain','intent') and key in answer: answer[key]=value
         result=copy.deepcopy(sample)
         result.obj['messages'][-1]['content']=json.dumps(answer,ensure_ascii=False,sort_keys=True,separators=(',',':'))
         return result

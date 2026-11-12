@@ -2,7 +2,13 @@
 
 面向中英文任务型对话的本地合成数据工具。通过界面选择**行业 → 业务功能 → 训练任务**，生成 UTF-8 数据集和质量报告。支持 Windows 桌面程序与 Python 命令行，不调用外部大模型或网络服务。
 
-**v2.1 新增：语料种子导入与扩增、训练／测试来源隔离、中英文界面及输入输出、可扩展词池、自定义输入模板与占位词位置、多对一输入输出关联、自定义输出字段和标签词汇。**支持 messages / Alpaca / ShareGPT / custom 结构及 JSONL / JSON / CSV。
+**v2.2 新增离线行业语料工作台**：三套公开语料原生适配、完整上下文判重、标签冲突隔离、训练评测来源保护、按标签均衡种子选取、Rasa / messages 兼容导出，以及可复现算法对照实验。公开语料共扫描 87,596 条，整理保留 87,159 条；原始文件和独立许可随语料包保存。
+
+国内下载：[ModelScope 文件页](https://www.modelscope.cn/datasets/zhouyang55666/customer_json/files)。`tools/` 是 Windows 完整离线包，`corpora/` 是公开行业语料包。无需 Python、GPU、海外模型服务或 API Key。
+
+新增说明：[中国用户使用说明](docs/中国用户使用说明.md) · [行业语料与许可](docs/industry-corpora.md) · [方法贡献、优秀项目融合与实验结果](docs/research-and-integration.md)。默认均衡随机选取；实验 coverage 在首次基线中表现更差，完整报告随源码提供，不宣称算法效果提升。
+
+保留 v2.1 的种子扩增、双语界面及输入输出、自定义词池和模板、多对一标签关联、自定义输出字段功能。支持 messages / Alpaca / ShareGPT / custom 结构及 JSONL / JSON / CSV。
 
 使用说明：[语料导入与格式](docs/import-export.md) · [语言与种子隔离](docs/languages-and-splits.md) · [词库、模板和多对一关联](docs/templates-pools-associations.md)。
 

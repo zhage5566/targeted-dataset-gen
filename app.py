@@ -12,16 +12,17 @@ import dataset_gen_core as core
 import catalogue as catalogue
 from ui_extensions import ImportExportMixin
 from ui_language import LanguageUiMixin
+from ui_corpus import CorpusUiMixin
 
 TASK_LABELS = [("intent", "意图识别 + 槽位抽取"), ("slots", "独立槽位提取"), ("domain", "业务领域分类"),
                ("dst_user", "状态跟踪 user_state"), ("dst_belief", "状态跟踪 belief_state"),
                ("clarify", "澄清问题生成"), ("ecom", "售后 Agent / 工具调用")]
 
 
-class App(ImportExportMixin, LanguageUiMixin, tk.Tk):
+class App(CorpusUiMixin, ImportExportMixin, LanguageUiMixin, tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("定向数据集生成器 v2.1 · 语料种子与自定义格式")
+        self.title("定向数据集生成器 v2.2 · 离线行业语料工作台")
         self.geometry("920x840")
         self.minsize(840, 760)
         self.q = queue.Queue()
@@ -134,6 +135,7 @@ class App(ImportExportMixin, LanguageUiMixin, tk.Tk):
         ttk.Entry(original, textvariable=self.var_src).pack(side="left", fill="x", expand=True, padx=4, pady=6)
         ttk.Button(original, text="选择…", command=self._browse_source).pack(side="left", padx=8)
         self._build_import_export(notebook)
+        self._build_corpus(notebook)
         ttk.Label(scope, text="售后 Agent 仅适用于电商退货、换货、仅退款和售后进度。其他行业支持前六类任务。", foreground="#617080").pack(anchor="w", padx=12, pady=6)
         self._refresh_scenes()
         self.pb = ttk.Progressbar(self, orient="horizontal", mode="determinate")
@@ -276,6 +278,12 @@ class App(ImportExportMixin, LanguageUiMixin, tk.Tk):
         try:
             while True:
                 kind, payload, text = self.q.get_nowait()
+                if kind.startswith('corpus_'):
+                    if self.closing:
+                        self.destroy()
+                        return
+                    self._corpus_event(kind,payload,text)
+                    continue
                 if kind in ("seed_preview", "seed_preview_error"):
                     self.btn_start.configure(state="normal")
                     self.btn_stop.configure(state="disabled")
@@ -392,7 +400,18 @@ if __name__ == "__main__":
                 first=json.loads(Path(custom['dst']).read_text(encoding='utf-8').splitlines()[0])
                 if first['my_label']!='shipment lookup' or first['my_entity'] not in first['my_input']:
                     raise RuntimeError('Custom templates / associations / output keys self-test failed')
-                Path(path + ".self-test.txt").write_text(f"PASS v{core.VERSION} bilingual Tk UI + {sum(result['stats'].values())} samples / five industries + seed import/augmentation/custom CSV + English corpus + localized values + expanded pools + custom input templates/associations/output keys", encoding="utf-8")
+                corpus_source=Path(tmp)/'corpus.jsonl'
+                corpus_source.write_text(json.dumps({'input':'查快递SF123','output':{'intent':'查询物流','slots':{'tracking_no':'SF123'}},'split':'train'},ensure_ascii=False)+'\n',encoding='utf-8')
+                probe.var_corpus_source.set(str(corpus_source)); probe.var_corpus_out.set(str(Path(tmp)/'corpus-out'))
+                probe.var_corpus_export.set('rasa')
+                corpus_reports=[]; probe._show_text=lambda title,body:corpus_reports.append(body)
+                probe._start_corpus(); deadline=time.monotonic()+30
+                while not corpus_reports and time.monotonic()<deadline:
+                    probe.update(); time.sleep(.01)
+                exported=Path(tmp)/'corpus-out/train.rasa.yml'
+                if not exported.exists() or json.loads(exported.read_text(encoding='utf-8'))['nlu'][0]['intent']!='custom__查询物流':
+                    raise RuntimeError('Corpus workbench / Rasa export UI self-test failed')
+                Path(path + ".self-test.txt").write_text(f"PASS v{core.VERSION} bilingual Tk UI + {sum(result['stats'].values())} samples / five industries + seed import/augmentation/custom CSV + English corpus + localized values + expanded pools + custom input templates/associations/output keys + offline corpus workbench + Rasa export", encoding="utf-8")
             finally:
                 if probe.worker and probe.worker.is_alive():
                     probe.stop_event.set()

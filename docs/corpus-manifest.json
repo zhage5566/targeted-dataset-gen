@@ -1,0 +1,312 @@
+{
+  "version": "2.2.0",
+  "sources": [
+    {
+      "id": "banking77",
+      "authors": "PolyAI Limited; Casanueva et al.",
+      "license": "CC-BY-4.0",
+      "citation": "https://arxiv.org/abs/2003.04807",
+      "source": {
+        "id": "banking77",
+        "repository": "https://github.com/PolyAI-LDN/task-specific-datasets",
+        "revision": "57ec275d8078af65b7731c2a98be812d844a6d6b",
+        "files": [
+          {
+            "file": "LICENSE",
+            "upstream_path": "LICENSE",
+            "url": "https://raw.githubusercontent.com/PolyAI-LDN/task-specific-datasets/57ec275d8078af65b7731c2a98be812d844a6d6b/LICENSE",
+            "bytes": 18650,
+            "sha256": "7e7170e3cebf88a9f60c7b8421418323c09304da1af4d5e90f4da1dc1c8a2661"
+          },
+          {
+            "file": "README.md",
+            "upstream_path": "README.md",
+            "url": "https://raw.githubusercontent.com/PolyAI-LDN/task-specific-datasets/57ec275d8078af65b7731c2a98be812d844a6d6b/README.md",
+            "bytes": 4735,
+            "sha256": "7b9ce9069931cc2de89dce8c7ffb53d07806cf413601ccf133b9af5227b3a373"
+          },
+          {
+            "file": "train.csv",
+            "upstream_path": "banking_data/train.csv",
+            "url": "https://raw.githubusercontent.com/PolyAI-LDN/task-specific-datasets/57ec275d8078af65b7731c2a98be812d844a6d6b/banking_data/train.csv",
+            "bytes": 839073,
+            "sha256": "b06e26ac675513959a63135f11b94ea7786ed02da65db93a5650d8838cbc664b"
+          },
+          {
+            "file": "test.csv",
+            "upstream_path": "banking_data/test.csv",
+            "url": "https://raw.githubusercontent.com/PolyAI-LDN/task-specific-datasets/57ec275d8078af65b7731c2a98be812d844a6d6b/banking_data/test.csv",
+            "bytes": 239961,
+            "sha256": "d12d6e3bc4c3103966ae786dc435913c0c563dfa328f5a3646d0e62cfeeb474d"
+          }
+        ]
+      },
+      "report": {
+        "input_records": 13083,
+        "accepted_records": 13071,
+        "quarantine": {
+          "duplicate_within_split": 5,
+          "train_evaluation_overlap": 7
+        },
+        "splits": {
+          "train": 9992,
+          "test": 3079
+        },
+        "labels_per_split": {
+          "train": 77,
+          "validation": 0,
+          "test": 77
+        },
+        "exact_cross_split_inputs_before": 7,
+        "policy": "Original splits retained. Conflicting full-context answers quarantined. Training lineage overlapping evaluation quarantined. No semantic leakage guarantee.",
+        "adapter": "banking77",
+        "random_seed": 42,
+        "selection_strategy": "random",
+        "per_label": 100,
+        "selected_train_records": 7433,
+        "selected_structures": 7433,
+        "provenance": [
+          {
+            "file": "LICENSE",
+            "sha256": "7e7170e3cebf88a9f60c7b8421418323c09304da1af4d5e90f4da1dc1c8a2661",
+            "bytes": 18650
+          },
+          {
+            "file": "README.md",
+            "sha256": "7b9ce9069931cc2de89dce8c7ffb53d07806cf413601ccf133b9af5227b3a373",
+            "bytes": 4735
+          },
+          {
+            "file": "source.json",
+            "sha256": "43b781f19119042e6ff83dd9ec2363b574e09b4fe14d2d7dfc7957e135b68451",
+            "bytes": 1514
+          },
+          {
+            "file": "test.csv",
+            "sha256": "d12d6e3bc4c3103966ae786dc435913c0c563dfa328f5a3646d0e62cfeeb474d",
+            "bytes": 239961
+          },
+          {
+            "file": "train.csv",
+            "sha256": "b06e26ac675513959a63135f11b94ea7786ed02da65db93a5650d8838cbc664b",
+            "bytes": 839073
+          }
+        ],
+        "version": "2.2.0",
+        "export_format": "none"
+      }
+    },
+    {
+      "id": "clinc150",
+      "authors": "Larson et al.; CLINC",
+      "license": "CC-BY-3.0",
+      "citation": "https://aclanthology.org/D19-1131/",
+      "source": {
+        "id": "clinc150",
+        "repository": "https://github.com/clinc/oos-eval",
+        "revision": "828f8093932c8fe6ca7936c3d2e52903b1c523de",
+        "files": [
+          {
+            "file": "LICENSE",
+            "upstream_path": "LICENSE",
+            "url": "https://raw.githubusercontent.com/clinc/oos-eval/828f8093932c8fe6ca7936c3d2e52903b1c523de/LICENSE",
+            "bytes": 19467,
+            "sha256": "e6bc9e9c474700b708f568bac9e5a8a9bcb2b1dad53442f5ba449fcb848b8e76"
+          },
+          {
+            "file": "README.md",
+            "upstream_path": "README.md",
+            "url": "https://raw.githubusercontent.com/clinc/oos-eval/828f8093932c8fe6ca7936c3d2e52903b1c523de/README.md",
+            "bytes": 2668,
+            "sha256": "8a8df26c4de3d25b6c4cff385ca23602c30e4e56828b015206cbc202f6db363a"
+          },
+          {
+            "file": "data_full.json",
+            "upstream_path": "data/data_full.json",
+            "url": "https://raw.githubusercontent.com/clinc/oos-eval/828f8093932c8fe6ca7936c3d2e52903b1c523de/data/data_full.json",
+            "bytes": 2495390,
+            "sha256": "36923c3705a59e08fe9c3883d8bc2dd966ef93e22cb78ac41171782a698d56e0"
+          },
+          {
+            "file": "domains.json",
+            "upstream_path": "data/domains.json",
+            "url": "https://raw.githubusercontent.com/clinc/oos-eval/828f8093932c8fe6ca7936c3d2e52903b1c523de/data/domains.json",
+            "bytes": 3818,
+            "sha256": "b947b579d3b8e74b06f93b01083d8efaff2888b43a3e362533bd88a6e1211b3a"
+          }
+        ]
+      },
+      "report": {
+        "input_records": 23700,
+        "accepted_records": 23691,
+        "quarantine": {
+          "conflicting_answers": 8,
+          "train_evaluation_overlap": 1
+        },
+        "splits": {
+          "validation": 3098,
+          "train": 15095,
+          "test": 5498
+        },
+        "labels_per_split": {
+          "train": 151,
+          "validation": 151,
+          "test": 151
+        },
+        "exact_cross_split_inputs_before": 5,
+        "policy": "Original splits retained. Conflicting full-context answers quarantined. Training lineage overlapping evaluation quarantined. No semantic leakage guarantee.",
+        "adapter": "clinc150",
+        "random_seed": 42,
+        "selection_strategy": "random",
+        "per_label": 100,
+        "selected_train_records": 15095,
+        "selected_structures": 15011,
+        "provenance": [
+          {
+            "file": "data_full.json",
+            "sha256": "36923c3705a59e08fe9c3883d8bc2dd966ef93e22cb78ac41171782a698d56e0",
+            "bytes": 2495390
+          },
+          {
+            "file": "domains.json",
+            "sha256": "b947b579d3b8e74b06f93b01083d8efaff2888b43a3e362533bd88a6e1211b3a",
+            "bytes": 3818
+          },
+          {
+            "file": "LICENSE",
+            "sha256": "e6bc9e9c474700b708f568bac9e5a8a9bcb2b1dad53442f5ba449fcb848b8e76",
+            "bytes": 19467
+          },
+          {
+            "file": "README.md",
+            "sha256": "8a8df26c4de3d25b6c4cff385ca23602c30e4e56828b015206cbc202f6db363a",
+            "bytes": 2668
+          },
+          {
+            "file": "source.json",
+            "sha256": "6b17713509cf12bf20309288ab6be0e87b6d8475fc93570928ba32b890d30dc2",
+            "bytes": 1412
+          }
+        ],
+        "version": "2.2.0",
+        "export_format": "none"
+      }
+    },
+    {
+      "id": "crosswoz",
+      "authors": "Zhu et al.; THU CoAI; ConvLab-2 contributors",
+      "license": "CC-BY-4.0",
+      "citation": "https://github.com/thu-coai/CrossWOZ",
+      "source": {
+        "id": "crosswoz",
+        "repository": "https://github.com/thu-coai/ConvLab-2",
+        "revision": "b014b81fcb1ff74f54681917eee39c14c87af3e5",
+        "files": [
+          {
+            "file": "README.md",
+            "upstream_path": "README.md",
+            "url": "https://raw.githubusercontent.com/thu-coai/ConvLab-2/b014b81fcb1ff74f54681917eee39c14c87af3e5/README.md",
+            "bytes": 14474,
+            "sha256": "2083dc14ff14338ff2235e39ec1db7beb0bf801d1376031bec2d98cdef0ef939",
+            "git_blob": "0b86df238481c86265b6b80dd27be82a10f991bd"
+          },
+          {
+            "file": "LICENSE",
+            "upstream_path": "LICENSE",
+            "url": "https://raw.githubusercontent.com/thu-coai/ConvLab-2/b014b81fcb1ff74f54681917eee39c14c87af3e5/LICENSE",
+            "bytes": 11357,
+            "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+            "git_blob": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64"
+          },
+          {
+            "file": "train.json.zip",
+            "upstream_path": "data/crosswoz/train.json.zip",
+            "url": "https://raw.githubusercontent.com/thu-coai/ConvLab-2/b014b81fcb1ff74f54681917eee39c14c87af3e5/data/crosswoz/train.json.zip",
+            "bytes": 13605897,
+            "sha256": "a5d8e2df632c3c75bcf19134f499df3dbc77f53bc06572fe53e76f0f763085bc",
+            "git_blob": "25b9a5957021db8217b6ea6e7b67f468f04a1b16"
+          },
+          {
+            "file": "val.json.zip",
+            "upstream_path": "data/crosswoz/val.json.zip",
+            "url": "https://raw.githubusercontent.com/thu-coai/ConvLab-2/b014b81fcb1ff74f54681917eee39c14c87af3e5/data/crosswoz/val.json.zip",
+            "bytes": 1366330,
+            "sha256": "acc6e3150576c783768cfef4b74841a1fb4d65d1872f77f4029de6985f3a2d1e",
+            "git_blob": "3f5d5ba5713d16755dd96c3f9e5779f973d58eef"
+          },
+          {
+            "file": "test.json.zip",
+            "upstream_path": "data/crosswoz/test.json.zip",
+            "url": "https://raw.githubusercontent.com/thu-coai/ConvLab-2/b014b81fcb1ff74f54681917eee39c14c87af3e5/data/crosswoz/test.json.zip",
+            "bytes": 1367456,
+            "sha256": "1703236a9e43089dc48e73abdc9a48a376fd40e2ae6be42cc56aff2a331462ed",
+            "git_blob": "dcae567e8f94426af67ae0e114daf1d63539ac6f"
+          }
+        ]
+      },
+      "report": {
+        "input_records": 50813,
+        "accepted_records": 50397,
+        "quarantine": {
+          "train_evaluation_overlap": 338,
+          "conflicting_answers": 9,
+          "duplicate_within_split": 69
+        },
+        "splits": {
+          "train": 41933,
+          "validation": 4227,
+          "test": 4237
+        },
+        "labels_per_split": {
+          "train": 117,
+          "validation": 69,
+          "test": 66
+        },
+        "exact_cross_split_inputs_before": 27,
+        "policy": "Original splits retained. Conflicting full-context answers quarantined. Training lineage overlapping evaluation quarantined. No semantic leakage guarantee.",
+        "adapter": "crosswoz",
+        "random_seed": 42,
+        "selection_strategy": "random",
+        "per_label": 100,
+        "export_format": "none",
+        "selected_train_records": 3958,
+        "selected_structures": 3799,
+        "provenance": [
+          {
+            "file": "LICENSE",
+            "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+            "bytes": 11357
+          },
+          {
+            "file": "README.md",
+            "sha256": "2083dc14ff14338ff2235e39ec1db7beb0bf801d1376031bec2d98cdef0ef939",
+            "bytes": 14474
+          },
+          {
+            "file": "source.json",
+            "sha256": "ef13a46d5d8da184a8d374229f52ceb6272c74bb8647c60ac64b7ad91b4285e7",
+            "bytes": 2138
+          },
+          {
+            "file": "test.json.zip",
+            "sha256": "1703236a9e43089dc48e73abdc9a48a376fd40e2ae6be42cc56aff2a331462ed",
+            "bytes": 1367456
+          },
+          {
+            "file": "train.json.zip",
+            "sha256": "a5d8e2df632c3c75bcf19134f499df3dbc77f53bc06572fe53e76f0f763085bc",
+            "bytes": 13605897
+          },
+          {
+            "file": "val.json.zip",
+            "sha256": "acc6e3150576c783768cfef4b74841a1fb4d65d1872f77f4029de6985f3a2d1e",
+            "bytes": 1366330
+          }
+        ],
+        "version": "2.2.0"
+      }
+    }
+  ],
+  "total_input_records": 87596,
+  "total_accepted_records": 87159
+}

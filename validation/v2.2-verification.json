@@ -1,0 +1,25 @@
+{
+  "version": "2.2.0",
+  "unit_and_ui_tests": 59,
+  "python_versions": [
+    "3.10",
+    "3.12",
+    "3.13"
+  ],
+  "exe_self_test": "PASS bilingual UI, generation, seed augmentation, custom formats/templates/associations, offline corpus workbench and Rasa export",
+  "public_corpus_raw_records": 87596,
+  "public_corpus_accepted_records": 87159,
+  "public_corpus_quarantined_records": 437,
+  "corpus_checks": [
+    "pinned upstream commits and SHA256",
+    "no train/evaluation exact full-context inputs or source groups overlap after cleaning",
+    "ZIP CRC integrity",
+    "original data and licenses retained"
+  ],
+  "benchmark": "BANKING77, 20 samples per label, 3 seeds, character n-gram NB. Coverage selection underperformed random; random is default.",
+  "limitations": [
+    "No semantic similarity leakage guarantee",
+    "Only three public datasets physically collected; other official references are catalog entries",
+    "External labels are preserved, not automatically mapped to generator scenes"
+  ]
+}

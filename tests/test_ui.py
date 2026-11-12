@@ -8,6 +8,23 @@ import gc
 
 @unittest.skipUnless(os.name == "nt", "GUI integration test requires Windows/Tk")
 class UiTests(unittest.TestCase):
+    def test_corpus_workbench_runs_offline_and_switches_language(self):
+        import app
+        import json
+        with tempfile.TemporaryDirectory() as tmp:
+            ui=app.App(); self.addCleanup(ui.destroy); ui.withdraw()
+            src=Path(tmp)/'input.jsonl'
+            src.write_text(json.dumps({'input':'查询包裹','output':'查询物流','split':'train'},ensure_ascii=False)+'\n',encoding='utf-8')
+            ui.var_ui_language.set('English'); ui._apply_ui_language()
+            self.assertIn('Corpus workbench',ui.notebook.tab(ui.notebook.tabs()[-1],'text'))
+            ui.var_corpus_source.set(str(src)); ui.var_corpus_out.set(str(Path(tmp)/'out'))
+            reports=[]; ui._show_text=lambda title,body:reports.append(body)
+            ui._start_corpus(); deadline=time.monotonic()+15
+            while not reports and time.monotonic()<deadline:
+                ui.update(); time.sleep(.01)
+            self.assertTrue(reports)
+            self.assertTrue((Path(tmp)/'out/selected-train.jsonl').exists())
+
     def setUp(self):
         # Finalize previous Tk roots on the main thread before starting workers.
         gc.collect()

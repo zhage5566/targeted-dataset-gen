@@ -28,7 +28,7 @@ from seed_corpus import SeedCorpus
 from language_support import EnglishMixin, EN_SYS, EN_SHOES, EN_CLOTHES, EN_ISSUES, validate_english_state
 from seed_partition import SeedPartition
 
-VERSION = "2.1.0"
+VERSION = "2.2.0"
 SYS = dict(S.SYS)
 SYS["slots"] = '你是任务型对话的槽位抽取助手。抽取用户明确提供的信息，不推测未提供的值。只输出 JSON 对象：{"slots":{"槽位名":"值"}}。'
 SYS_BY_LANGUAGE = {"zh": SYS, "en": EN_SYS}

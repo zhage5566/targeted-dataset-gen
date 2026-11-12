@@ -6,6 +6,15 @@ import catalogue as C
 from language_support import EN_ACTIONS
 
 UI_EN = {
+ '兼容导出格式':'Interoperability export',
+ '  行业语料工作台  ':'  Corpus workbench  ',
+ '公开语料目录：已整理 / 官方入口，数据与软件分别遵循原许可。':'Public corpus catalog: collected data / official references. Data and code have separate licenses.',
+ '查看来源与使用条件':'View source and terms',
+ '原始语料文件或目录':'Source file or directory','新建输出目录':'New output directory','输入字段':'Input field','答案字段':'Answer field',
+ '每标签训练种子上限':'Training seeds per label','选择目录…':'Select directory…','语料适配器':'Corpus adapter','训练种子选取策略':'Training seed selection',
+ 'coverage 优先覆盖不同词面结构；random 为等预算随机对照。保留原始测试集，不用测试标签选择训练种子。':'coverage prioritizes distinct lexical structures; random is an equal-budget control. Original split membership is retained; test labels do not guide train selection.',
+ '整理、隔离并导出':'Prepare, isolate and export','打开中文使用说明':'Open Chinese user guide','行业语料来源':'Corpus source','语料整理报告':'Corpus report','语料整理失败':'Corpus preparation failed','中文使用说明':'Chinese user guide',
+ '输出 train / validation / test、均衡训练种子、隔离记录及质量报告。任意行业标签可整理；导入旧生成器仍须映射到其内置场景。':'Export train / validation / test, balanced training seeds, quarantine and report. Any industry labels can be prepared; the original generator still needs mappings to its built-in scenes.',
  '  输入输出关联  ':'  Input / output associations  ',
  '启用输入词汇与输出标签关联':'Enable input vocabulary / output label associations',
  '例如：快递号 / 运单号 → 物流查询场景 → 中文“查询物流”、英文“track shipment”。规则同时命中不同场景时过滤并报告。':'Example: tracking number → shipment query scene → Chinese / English intent aliases. Conflicting scene matches are filtered and reported.',
@@ -150,7 +159,7 @@ class LanguageUiMixin:
         for tab in self.notebook.tabs():
             original = self._ui_tabs.setdefault(tab,self.notebook.tab(tab,'text'))
             self.notebook.tab(tab,text=self._tr(original))
-        self.title('Targeted Dataset Generator v2.1' if self.ui_language == 'en' else '定向数据集生成器 v2.1 · 中英文与种子隔离')
+        self.title('Targeted Dataset Generator v2.2' if self.ui_language == 'en' else '定向数据集生成器 v2.2 · 离线行业语料工作台')
         selected = self.scene_list.curselection()
         self.scene_list.delete(0,'end')
         for scene in self.visible_scenes: self.scene_list.insert('end',self._scene_label(scene))
